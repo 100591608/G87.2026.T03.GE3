@@ -26,21 +26,21 @@ class EnterpriseManager:
             raise EnterpriseManagementException("Invalid CIF format")
 
         first_letter = cif_number[0]
-        n = cif_number[1:8]
+        number_part = cif_number[1:8]
         u = cif_number[8]
 
         s1 = 0
         s2 = 0
 
-        for i in range(len(n)):
+        for i in range(len(number_part)):
             if i % 2 == 0:
-                x = int(n[i]) * 2
+                x = int(number_part[i]) * 2
                 if x > 9:
                     s1 = s1 + (x // 10) + (x % 10)
                 else:
                     s1 = s1 + x
             else:
-                s2 = s2 + int(n[i])
+                s2 = s2 + int(number_part[i])
 
         t = s1 + s2
         u2 = t % 10
