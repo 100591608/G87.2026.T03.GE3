@@ -30,7 +30,7 @@ class EnterpriseManager:
         control_char = cif_number[8]
 
         sum_odd_digits = 0
-        s2 = 0
+        sum_even_digits = 0
 
         for i in range(len(number_part)):
             if i % 2 == 0:
@@ -40,9 +40,9 @@ class EnterpriseManager:
                 else:
                     sum_odd_digits = sum_odd_digits + x
             else:
-                s2 = s2 + int(number_part[i])
+                sum_even_digits = sum_even_digits + int(number_part[i])
 
-        t = sum_odd_digits + s2
+        t = sum_odd_digits + sum_even_digits
         u2 = t % 10
         r = 10 - u2
 
