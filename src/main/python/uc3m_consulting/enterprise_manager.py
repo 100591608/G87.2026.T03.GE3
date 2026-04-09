@@ -34,11 +34,11 @@ class EnterpriseManager:
 
         for i in range(len(number_part)):
             if i % 2 == 0:
-                x = int(number_part[i]) * 2
-                if x > 9:
-                    sum_odd_digits = sum_odd_digits + (x // 10) + (x % 10)
+                doubled_digit = int(number_part[i]) * 2
+                if doubled_digit > 9:
+                    sum_odd_digits = sum_odd_digits + (doubled_digit // 10) + (doubled_digit % 10)
                 else:
-                    sum_odd_digits = sum_odd_digits + x
+                    sum_odd_digits = sum_odd_digits + doubled_digit
             else:
                 sum_even_digits = sum_even_digits + int(number_part[i])
 
