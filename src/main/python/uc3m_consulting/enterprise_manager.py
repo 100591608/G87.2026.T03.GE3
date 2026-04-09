@@ -43,8 +43,8 @@ class EnterpriseManager:
                 sum_even_digits = sum_even_digits + int(number_part[i])
 
         total = sum_odd_digits + sum_even_digits
-        u2 = total % 10
-        r = 10 - u2
+        last_digit_of_sum = total % 10
+        r = 10 - last_digit_of_sum
 
         if r == 10:
             r = 0
