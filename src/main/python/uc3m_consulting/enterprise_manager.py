@@ -197,8 +197,8 @@ class EnterpriseManager:
             doc_date_str = datetime.fromtimestamp(time_val).strftime("%d/%m/%Y")
 
             if doc_date_str == date_str:
-                d_obj = datetime.fromtimestamp(time_val, tz=timezone.utc)
-                with freeze_time(d_obj):
+                doc_registration_time = datetime.fromtimestamp(time_val, tz=timezone.utc)
+                with freeze_time(doc_registration_time):
                     # check the project id (thanks to freezetime)
                     # if project_id are different then the data has been
                     #manipulated
@@ -223,7 +223,7 @@ class EnterpriseManager:
         except FileNotFoundError:
             dl = []
         except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
+            raise EnterpreManagementException("JSON Decode Error - Wrong JSON Format") from ex
         dl.append(s)
         try:
             with open(TEST_NUMDOCS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
