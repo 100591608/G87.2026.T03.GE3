@@ -190,8 +190,8 @@ class EnterpriseManager:
         valid_count = 0
 
         # loop to find
-        for el in document_list:
-            time_val = el["register_date"]
+        for document_item in document_list:
+            time_val = document_item["register_date"]
 
             # string conversion for easy match
             doc_date_str = datetime.fromtimestamp(time_val).strftime("%d/%m/%Y")
@@ -202,8 +202,8 @@ class EnterpriseManager:
                     # check the project id (thanks to freezetime)
                     # if project_id are different then the data has been
                     #manipulated
-                    p = ProjectDocument(el["project_id"], el["file_name"])
-                    if p.document_signature == el["document_signature"]:
+                    p = ProjectDocument(document_item["project_id"], document_item["file_name"])
+                    if p.document_signature == document_item["document_signature"]:
                         valid_count = valid_count + 1
                     else:
                         raise EnterpriseManagementException("Inconsistent document signature")
