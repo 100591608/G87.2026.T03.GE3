@@ -212,7 +212,7 @@ class EnterpriseManager:
             raise EnterpriseManagementException("No documents found")
         # prepare json text
         now_str = datetime.now(timezone.utc).timestamp()
-        s = {"Querydate":  date_str,
+        query_summary_data = {"Querydate":  date_str,
              "ReportDate": now_str,
              "Numfiles": valid_count
              }
@@ -224,7 +224,7 @@ class EnterpriseManager:
             dl = []
         except json.JSONDecodeError as ex:
             raise EnterpreManagementException("JSON Decode Error - Wrong JSON Format") from ex
-        dl.append(s)
+        dl.append(query_summary_data)
         try:
             with open(TEST_NUMDOCS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
                 json.dump(dl, file, indent=2)
