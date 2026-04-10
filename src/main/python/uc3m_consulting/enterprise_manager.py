@@ -93,8 +93,8 @@ class EnterpriseManager:
         is_match = acronym_pattern.fullmatch(project_acronym)
         if not is_match:
             raise EnterpriseManagementException("Invalid acronym")
-        md = re.compile(r"^.{10,30}$")
-        is_match = md.fullmatch(project_description)
+        description_pattern = re.compile(r"^.{10,30}$")
+        is_match = description_pattern.fullmatch(project_description)
         if not is_match:
             raise EnterpriseManagementException("Invalid description format")
 
