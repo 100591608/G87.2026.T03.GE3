@@ -219,15 +219,15 @@ class EnterpriseManager:
 
         try:
             with open(TEST_NUMDOCS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                dl = json.load(file)
+                stored_query_summaries = json.load(file)
         except FileNotFoundError:
-            dl = []
+            stored_query_summaries = []
         except json.JSONDecodeError as ex:
             raise EnterpreManagementException("JSON Decode Error - Wrong JSON Format") from ex
-        dl.append(query_summary_data)
+        stored_query_summaries.append(query_summary_data)
         try:
             with open(TEST_NUMDOCS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
-                json.dump(dl, file, indent=2)
+                json.dump(stored_query_summaries, file, indent=2)
         except FileNotFoundError as ex:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
         return valid_count
