@@ -135,8 +135,8 @@ class EnterpriseManager:
         except json.JSONDecodeError as ex:
             raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
 
-        for t_i in project_list:
-            if t_i == new_project.to_json():
+        for project_item in project_list:
+            if project_item == new_project.to_json():
                 raise EnterpriseManagementException("Duplicated project in projects list")
 
         project_list.append(new_project.to_json())
