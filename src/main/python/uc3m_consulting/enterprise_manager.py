@@ -202,8 +202,8 @@ class EnterpriseManager:
                     # check the project id (thanks to freezetime)
                     # if project_id are different then the data has been
                     #manipulated
-                    p = ProjectDocument(document_item["project_id"], document_item["file_name"])
-                    if p.document_signature == document_item["document_signature"]:
+                    project_document = ProjectDocument(document_item["project_id"], document_item["file_name"])
+                    if project_document.document_signature == document_item["document_signature"]:
                         valid_count = valid_count + 1
                     else:
                         raise EnterpriseManagementException("Inconsistent document signature")
