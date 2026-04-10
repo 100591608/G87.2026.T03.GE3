@@ -90,17 +90,17 @@ class EnterpriseManager:
         """registers a new project"""
         self.validate_cif(company_cif)
         mr = re.compile(r"^[a-zA-Z0-9]{5,10}")
-        res = mr.fullmatch(project_acronym)
-        if not res:
+        is_match = mr.fullmatch(project_acronym)
+        if not is_match:
             raise EnterpriseManagementException("Invalid acronym")
         md = re.compile(r"^.{10,30}$")
-        res = md.fullmatch(project_description)
-        if not res:
+        is_match = md.fullmatch(project_description)
+        if not is_match:
             raise EnterpriseManagementException("Invalid description format")
 
         mr = re.compile(r"(HR|FINANCE|LEGAL|LOGISTICS)")
-        res = mr.fullmatch(department)
-        if not res:
+        is_match = mr.fullmatch(department)
+        if not is_match:
             raise EnterpriseManagementException("Invalid department")
 
         self.validate_starting_date(date)
