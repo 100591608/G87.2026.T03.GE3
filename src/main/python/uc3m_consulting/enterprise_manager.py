@@ -72,6 +72,7 @@ class EnterpriseManager:
             raise EnterpriseManagementException("Invalid date format")
         return target_date
 
+    #extracted method
     def validate_date_format(self, target_date) -> date:
         date_pattern = re.compile(r"^(([0-2]\d|3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
         is_match = date_pattern.fullmatch(target_date)
@@ -219,7 +220,7 @@ class EnterpriseManager:
         except FileNotFoundError:
             stored_query_summaries = []
         except json.JSONDecodeError as ex:
-            raise EnterpreManagementException("JSON Decode Error - Wrong JSON Format") from ex
+            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
         stored_query_summaries.append(query_summary_data)
         try:
             with open(TEST_NUMDOCS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
