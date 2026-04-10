@@ -187,7 +187,7 @@ class EnterpriseManager:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
 
 
-        rst = 0
+        valid_count = 0
 
         # loop to find
         for el in document_list:
@@ -204,17 +204,17 @@ class EnterpriseManager:
                     #manipulated
                     p = ProjectDocument(el["project_id"], el["file_name"])
                     if p.document_signature == el["document_signature"]:
-                        rst = rst + 1
+                        valid_count = valid_count + 1
                     else:
                         raise EnterpriseManagementException("Inconsistent document signature")
 
-        if rst == 0:
+        if valid_count == 0:
             raise EnterpriseManagementException("No documents found")
         # prepare json text
         now_str = datetime.now(timezone.utc).timestamp()
         s = {"Querydate":  date_str,
              "ReportDate": now_str,
-             "Numfiles": rst
+             "Numfiles": valid_count
              }
 
         try:
@@ -230,4 +230,4 @@ class EnterpriseManager:
                 json.dump(dl, file, indent=2)
         except FileNotFoundError as ex:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
-        return rst
+        return valid_count
