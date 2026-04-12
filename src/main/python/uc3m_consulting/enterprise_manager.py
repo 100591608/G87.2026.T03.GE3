@@ -3,6 +3,8 @@ import re
 import json
 
 from datetime import datetime, timezone, date
+from typing import Any
+
 from freezegun import freeze_time
 from uc3m_consulting.enterprise_project import EnterpriseProject
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
@@ -133,13 +135,7 @@ class EnterpriseManager:
                                         starting_date=date,
                                         project_budget=budget)
 
-        try:
-            with open(PROJECTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                project_list = json.load(file)
-        except FileNotFoundError:
-            project_list = []
-        except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        project_list = self.read_json_file()
 
         for project_item in project_list:
             if project_item == new_project.to_json():
@@ -156,6 +152,15 @@ class EnterpriseManager:
             raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
         return new_project.project_id
 
+    def read_json_file(self) -> Any:
+        try:
+            with open(PROJECTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
+                project_list = json.load(file)
+        except FileNotFoundError:
+            project_list = []
+        except json.JSONDecodeError as ex:
+            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        return project_list
 
     def find_docs(self, date_str):
         """
@@ -214,13 +219,7 @@ class EnterpriseManager:
              "Numfiles": valid_count
              }
 
-        try:
-            with open(TEST_NUMDOCS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                stored_query_summaries = json.load(file)
-        except FileNotFoundError:
-            stored_query_summaries = []
-        except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        stored_query_summaries = self.read_json_file()
         stored_query_summaries.append(query_summary_data)
         try:
             with open(TEST_NUMDOCS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
