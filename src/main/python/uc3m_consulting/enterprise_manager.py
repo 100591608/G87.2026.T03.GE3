@@ -2,9 +2,7 @@
 import re
 import json
 
-from datetime import datetime, timezone, date
-from typing import Any
-
+from datetime import datetime, timezone
 from freezegun import freeze_time
 from uc3m_consulting.enterprise_project import EnterpriseProject
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
@@ -65,17 +63,6 @@ class EnterpriseManager:
 
     def validate_starting_date(self, target_date):
         """validates the  date format  using regex"""
-        my_date = self.validate_date_format(target_date)
-
-        if my_date < datetime.now(timezone.utc).date():
-            raise EnterpriseManagementException("Project's date must be today or later.")
-
-        if my_date.year < 2025 or my_date.year > 2050:
-            raise EnterpriseManagementException("Invalid date format")
-        return target_date
-
-    #extracted method
-    def validate_date_format(self, target_date) -> date:
         date_pattern = re.compile(r"^(([0-2]\d|3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
         is_match = date_pattern.fullmatch(target_date)
         if not is_match:
@@ -85,8 +72,13 @@ class EnterpriseManager:
             my_date = datetime.strptime(target_date, "%d/%m/%Y").date()
         except ValueError as ex:
             raise EnterpriseManagementException("Invalid date format") from ex
-        return my_date
 
+        if my_date < datetime.now(timezone.utc).date():
+            raise EnterpriseManagementException("Project's date must be today or later.")
+
+        if my_date.year < 2025 or my_date.year > 2050:
+            raise EnterpriseManagementException("Invalid date format")
+        return target_date
     #pylint: disable=too-many-arguments, too-many-positional-arguments
     def register_project(self,
                          company_cif: str,
@@ -135,7 +127,13 @@ class EnterpriseManager:
                                         starting_date=date,
                                         project_budget=budget)
 
-        project_list = self.read_json_file()
+        try:
+            with open(PROJECTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
+                project_list = json.load(file)
+        except FileNotFoundError:
+            project_list = []
+        except json.JSONDecodeError as ex:
+            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
 
         for project_item in project_list:
             if project_item == new_project.to_json():
@@ -152,15 +150,6 @@ class EnterpriseManager:
             raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
         return new_project.project_id
 
-    def read_json_file(self) -> Any:
-        try:
-            with open(PROJECTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                project_list = json.load(file)
-        except FileNotFoundError:
-            project_list = []
-        except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
-        return project_list
 
     def find_docs(self, date_str):
         """
@@ -179,7 +168,16 @@ class EnterpriseManager:
             EnterpriseManagementException: On invalid date, file IO errors,
                 missing data, or cryptographic integrity failure.
         """
-        my_date = self.validate_date_format(date_str)
+        date_pattern = re.compile(r"^(([0-2]\d|3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
+        is_match = date_pattern.fullmatch(date_str)
+        if not is_match:
+            raise EnterpriseManagementException("Invalid date format")
+
+        try:
+            my_date = datetime.strptime(date_str, "%d/%m/%Y").date()
+        except ValueError as ex:
+            raise EnterpriseManagementException("Invalid date format") from ex
+
 
         # open documents
         try:
@@ -219,11 +217,17 @@ class EnterpriseManager:
              "Numfiles": valid_count
              }
 
-        stored_query_summaries = self.read_json_file()
-        stored_query_summaries.append(query_summary_data)
+        try:
+            with open(TEST_NUMDOCS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
+                dl = json.load(file)
+        except FileNotFoundError:
+            dl = []
+        except json.JSONDecodeError as ex:
+            raise EnterpreManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        dl.append(query_summary_data)
         try:
             with open(TEST_NUMDOCS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
-                json.dump(stored_query_summaries, file, indent=2)
+                json.dump(dl, file, indent=2)
         except FileNotFoundError as ex:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
         return valid_count
