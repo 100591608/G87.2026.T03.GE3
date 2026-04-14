@@ -93,12 +93,7 @@ class EnterpriseManager:
         self.validate_cif(company_cif)
         self.validate_acronym(project_acronym)
         self.validate_description(project_description)
-
-        acronym_pattern = re.compile(r"(HR|FINANCE|LEGAL|LOGISTICS)")
-        is_match = acronym_pattern.fullmatch(department)
-        if not is_match:
-            raise EnterpriseManagementException("Invalid department")
-
+        self.validate_department(department)
         self.validate_starting_date(date)
 
         try:
@@ -133,6 +128,12 @@ class EnterpriseManager:
 
         self.write_json_project(project_list)
         return new_project.project_id
+
+    def validate_department(self, department: str):
+        department_pattern = re.compile(r"(HR|FINANCE|LEGAL|LOGISTICS)")
+        is_match = department_pattern.fullmatch(department)
+        if not is_match:
+            raise EnterpriseManagementException("Invalid department")
 
     def validate_description(self, project_description: str):
         description_pattern = re.compile(r"^.{10,30}$")
