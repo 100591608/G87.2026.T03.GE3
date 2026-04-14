@@ -185,11 +185,7 @@ class EnterpriseManager:
 
 
         # open documents
-        try:
-            with open(TEST_DOCUMENTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                document_list = json.load(file)
-        except FileNotFoundError as ex:
-            raise EnterpriseManagementException("Wrong file  or file path") from ex
+        document_list = self.read_json_documents()
 
 
         valid_count = 0
@@ -222,7 +218,7 @@ class EnterpriseManager:
              "Numfiles": valid_count
              }
 
-        stored_query_summaries = self.read_json_store_file()
+        stored_query_summaries = self.read_json_num_docs()
         stored_query_summaries.append(query_summary_data)
         try:
             with open(TEST_NUMDOCS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
@@ -231,7 +227,15 @@ class EnterpriseManager:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
         return valid_count
 
-    def read_json_store_file(self) -> Any:
+    def read_json_documents(self) -> Any:
+        try:
+            with open(TEST_DOCUMENTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
+                document_list = json.load(file)
+        except FileNotFoundError as ex:
+            raise EnterpriseManagementException("Wrong file  or file path") from ex
+        return document_list
+
+    def read_json_num_docs(self) -> Any:
         try:
             with open(TEST_NUMDOCS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
                 stored_query_summaries = json.load(file)
