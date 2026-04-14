@@ -92,10 +92,7 @@ class EnterpriseManager:
         """registers a new project"""
         self.validate_cif(company_cif)
         self.validate_acronym(project_acronym)
-        description_pattern = re.compile(r"^.{10,30}$")
-        is_match = description_pattern.fullmatch(project_description)
-        if not is_match:
-            raise EnterpriseManagementException("Invalid description format")
+        self.validate_description(project_description)
 
         acronym_pattern = re.compile(r"(HR|FINANCE|LEGAL|LOGISTICS)")
         is_match = acronym_pattern.fullmatch(department)
@@ -136,6 +133,12 @@ class EnterpriseManager:
 
         self.write_json_project(project_list)
         return new_project.project_id
+
+    def validate_description(self, project_description: str):
+        description_pattern = re.compile(r"^.{10,30}$")
+        is_match = description_pattern.fullmatch(project_description)
+        if not is_match:
+            raise EnterpriseManagementException("Invalid description format")
 
     def validate_acronym(self, project_acronym: str):
         acronym_pattern = re.compile(r"^[a-zA-Z0-9]{5,10}")
