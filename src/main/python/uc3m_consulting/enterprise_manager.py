@@ -137,6 +137,10 @@ class EnterpriseManager:
 
         project_list.append(new_project.to_json())
 
+        self.write_json_project(project_list)
+        return new_project.project_id
+
+    def write_json_project(self, project_list):
         try:
             with open(PROJECTS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
                 json.dump(project_list, file, indent=2)
@@ -144,7 +148,6 @@ class EnterpriseManager:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
         except json.JSONDecodeError as ex:
             raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
-        return new_project.project_id
 
     def read_json_project(self) -> Any:
         try:
