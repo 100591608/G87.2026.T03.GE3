@@ -91,10 +91,7 @@ class EnterpriseManager:
                          budget: str):
         """registers a new project"""
         self.validate_cif(company_cif)
-        acronym_pattern = re.compile(r"^[a-zA-Z0-9]{5,10}")
-        is_match = acronym_pattern.fullmatch(project_acronym)
-        if not is_match:
-            raise EnterpriseManagementException("Invalid acronym")
+        self.validate_acronym(project_acronym)
         description_pattern = re.compile(r"^.{10,30}$")
         is_match = description_pattern.fullmatch(project_description)
         if not is_match:
@@ -139,6 +136,12 @@ class EnterpriseManager:
 
         self.write_json_project(project_list)
         return new_project.project_id
+
+    def validate_acronym(self, project_acronym: str):
+        acronym_pattern = re.compile(r"^[a-zA-Z0-9]{5,10}")
+        is_match = acronym_pattern.fullmatch(project_acronym)
+        if not is_match:
+            raise EnterpriseManagementException("Invalid acronym")
 
     def write_json_project(self, project_list):
         try:
