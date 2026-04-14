@@ -223,12 +223,15 @@ class EnterpriseManager:
 
         stored_query_summaries = self.read_json_num_docs()
         stored_query_summaries.append(query_summary_data)
+        self.write_json_num_docs(stored_query_summaries)
+        return valid_count
+
+    def write_json_num_docs(self, stored_query_summaries):
         try:
             with open(TEST_NUMDOCS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
                 json.dump(stored_query_summaries, file, indent=2)
         except FileNotFoundError as ex:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
-        return valid_count
 
     def read_json_documents(self) -> Any:
         try:
