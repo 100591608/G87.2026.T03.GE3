@@ -1,7 +1,9 @@
 """MODULE: enterprise_project. Contains the EnterpriseProject class"""
+import re
 import hashlib
 import json
 from datetime import datetime, timezone
+from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 
 class EnterpriseProject:
     """Class representing a project"""
@@ -15,7 +17,7 @@ class EnterpriseProject:
                  project_budget: float):
         self.__company_cif = company_cif
         self.__project_description = project_description
-        self.__project_achronym = project_acronym
+        self.__project_achronym = self.validate_acronym(project_acronym)
         self.__department = department
         self.__starting_date = starting_date
         self.__project_budget = project_budget
@@ -96,3 +98,11 @@ class EnterpriseProject:
     def project_id(self):
         """Returns the md5 signature (project id)"""
         return hashlib.md5(str(self).encode()).hexdigest()
+
+    def validate_acronym(self, project_acronym: str):
+        """Validates the project acronym"""
+        acronym_pattern = re.compile(r"^[a-zA-Z0-9]{5,10}")
+        is_match = acronym_pattern.fullmatch(project_acronym)
+        if not is_match:
+            raise EnterpriseManagementException("Invalid acronym")
+        return project_acronym
