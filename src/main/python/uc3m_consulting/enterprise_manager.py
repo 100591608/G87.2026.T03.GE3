@@ -121,7 +121,7 @@ class EnterpriseManager:
 
 
         # open documents
-        document_list = self.read_json_documents()
+        document_list = ProjectDocument.read_json_documents()
 
 
         valid_count = 0
@@ -165,14 +165,6 @@ class EnterpriseManager:
                 json.dump(stored_query_summaries, file, indent=2)
         except FileNotFoundError as ex:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
-
-    def read_json_documents(self) -> Any:
-        try:
-            with open(TEST_DOCUMENTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                document_list = json.load(file)
-        except FileNotFoundError as ex:
-            raise EnterpriseManagementException("Wrong file  or file path") from ex
-        return document_list
 
     def read_json_num_docs(self) -> Any:
         try:

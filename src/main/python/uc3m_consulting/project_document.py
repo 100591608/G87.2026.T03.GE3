@@ -1,6 +1,10 @@
 """Contains the class OrderShipping"""
+import json
+from typing import Any
 from datetime import datetime, timezone
 import hashlib
+from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
+from uc3m_consulting.enterprise_manager_config import TEST_DOCUMENTS_STORE_FILE
 
 class ProjectDocument():
     """Class representing the information required for shipping of an order"""
@@ -58,3 +62,13 @@ class ProjectDocument():
     def document_signature(self):
         """Returns the sha256 signature of the date"""
         return hashlib.sha256(self.__signature_string().encode()).hexdigest()
+
+    @staticmethod
+    def read_json_documents() -> Any:
+        """Reads the documents json store"""
+        try:
+            with open(TEST_DOCUMENTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
+                document_list = json.load(file)
+        except FileNotFoundError as ex:
+            raise EnterpriseManagementException("Wrong file  or file path") from ex
+        return document_list
