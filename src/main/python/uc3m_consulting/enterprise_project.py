@@ -20,7 +20,7 @@ class EnterpriseProject:
         self.__project_achronym = self.validate_acronym(project_acronym)
         self.__department = department
         self.__starting_date = starting_date
-        self.__project_budget = project_budget
+        self.__project_budget = self.validate_budget(project_budget)
         justnow = datetime.now(timezone.utc)
         self.__time_stamp = datetime.timestamp(justnow)
 
@@ -114,3 +114,20 @@ class EnterpriseProject:
         if not is_match:
             raise EnterpriseManagementException("Invalid description format")
         return project_description
+
+    def validate_budget(self, budget: str):
+        """Validates the project budget"""
+        try:
+            budget_float = float(budget)
+        except ValueError as exc:
+            raise EnterpriseManagementException("Invalid budget amount") from exc
+
+        budget_string = str(budget_float)
+        if '.' in budget_string:
+            decimales = len(budget_string.split('.')[1])
+            if decimales > 2:
+                raise EnterpriseManagementException("Invalid budget amount")
+
+        if budget_float < 50000 or budget_float > 1000000:
+            raise EnterpriseManagementException("Invalid budget amount")
+        return budget
