@@ -2,8 +2,10 @@
 import re
 import hashlib
 import json
+from typing import Any
 from datetime import datetime, timezone
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
+from uc3m_consulting.enterprise_manager_config import PROJECTS_STORE_FILE
 
 class EnterpriseProject:
     """Class representing a project"""
@@ -158,3 +160,15 @@ class EnterpriseProject:
         if my_date.year < 2025 or my_date.year > 2050:
             raise EnterpriseManagementException("Invalid date format")
         return target_date
+
+    @staticmethod
+    def read_json_project() -> Any:
+        """Reads the projects json store"""
+        try:
+            with open(PROJECTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
+                project_list = json.load(file)
+        except FileNotFoundError:
+            project_list = []
+        except json.JSONDecodeError as ex:
+            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        return project_list

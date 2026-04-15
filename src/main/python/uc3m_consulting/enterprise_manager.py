@@ -81,7 +81,7 @@ class EnterpriseManager:
                                         starting_date=date,
                                         project_budget=budget)
 
-        project_list = self.read_json_project()
+        project_list = EnterpriseProject.read_json_project()
 
         for project_item in project_list:
             if project_item == new_project.to_json():
@@ -100,16 +100,6 @@ class EnterpriseManager:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
         except json.JSONDecodeError as ex:
             raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
-
-    def read_json_project(self) -> Any:
-        try:
-            with open(PROJECTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                project_list = json.load(file)
-        except FileNotFoundError:
-            project_list = []
-        except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
-        return project_list
 
     def find_docs(self, date_str):
         """
