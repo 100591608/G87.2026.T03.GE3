@@ -4,7 +4,8 @@ from typing import Any
 from datetime import datetime, timezone
 import hashlib
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
-from uc3m_consulting.enterprise_manager_config import TEST_DOCUMENTS_STORE_FILE
+from uc3m_consulting.enterprise_manager_config import (TEST_DOCUMENTS_STORE_FILE,
+                                                       TEST_NUMDOCS_STORE_FILE)
 
 class ProjectDocument():
     """Class representing the information required for shipping of an order"""
@@ -72,3 +73,15 @@ class ProjectDocument():
         except FileNotFoundError as ex:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
         return document_list
+
+    @staticmethod
+    def read_json_num_docs() -> Any:
+        """Reads the num documents json store"""
+        try:
+            with open(TEST_NUMDOCS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
+                stored_query_summaries = json.load(file)
+        except FileNotFoundError:
+            stored_query_summaries = []
+        except json.JSONDecodeError as ex:
+            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        return stored_query_summaries

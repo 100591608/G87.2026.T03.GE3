@@ -154,7 +154,7 @@ class EnterpriseManager:
              "Numfiles": valid_count
              }
 
-        stored_query_summaries = self.read_json_num_docs()
+        stored_query_summaries = EnterpriseProject.read_json_project()
         stored_query_summaries.append(query_summary_data)
         self.write_json_num_docs(stored_query_summaries)
         return valid_count
@@ -165,13 +165,3 @@ class EnterpriseManager:
                 json.dump(stored_query_summaries, file, indent=2)
         except FileNotFoundError as ex:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
-
-    def read_json_num_docs(self) -> Any:
-        try:
-            with open(TEST_NUMDOCS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                stored_query_summaries = json.load(file)
-        except FileNotFoundError:
-            stored_query_summaries = []
-        except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
-        return stored_query_summaries
