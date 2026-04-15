@@ -91,7 +91,6 @@ class EnterpriseManager:
                          budget: str):
         """registers a new project"""
         self.validate_cif(company_cif)
-        self.validate_department(department)
         self.validate_starting_date(date)
 
         new_project = EnterpriseProject(company_cif=company_cif,
@@ -111,12 +110,6 @@ class EnterpriseManager:
 
         self.write_json_project(project_list)
         return new_project.project_id
-
-    def validate_department(self, department: str):
-        department_pattern = re.compile(r"(HR|FINANCE|LEGAL|LOGISTICS)")
-        is_match = department_pattern.fullmatch(department)
-        if not is_match:
-            raise EnterpriseManagementException("Invalid department")
 
     def write_json_project(self, project_list):
         try:

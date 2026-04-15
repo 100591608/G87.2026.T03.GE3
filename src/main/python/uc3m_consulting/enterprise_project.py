@@ -18,7 +18,7 @@ class EnterpriseProject:
         self.__company_cif = company_cif
         self.__project_description = self.validate_description(project_description)
         self.__project_achronym = self.validate_acronym(project_acronym)
-        self.__department = department
+        self.__department = self.validate_department(department)
         self.__starting_date = starting_date
         self.__project_budget = self.validate_budget(project_budget)
         justnow = datetime.now(timezone.utc)
@@ -131,3 +131,11 @@ class EnterpriseProject:
         if budget_float < 50000 or budget_float > 1000000:
             raise EnterpriseManagementException("Invalid budget amount")
         return budget
+
+    def validate_department(self, department: str):
+        """Validates the project department"""
+        department_pattern = re.compile(r"(HR|FINANCE|LEGAL|LOGISTICS)")
+        is_match = department_pattern.fullmatch(department)
+        if not is_match:
+            raise EnterpriseManagementException("Invalid department")
+        return department
