@@ -19,7 +19,7 @@ class EnterpriseProject:
         self.__project_description = self.validate_description(project_description)
         self.__project_achronym = self.validate_acronym(project_acronym)
         self.__department = self.validate_department(department)
-        self.__starting_date = starting_date
+        self.__starting_date = self.validate_starting_date(starting_date)
         self.__project_budget = self.validate_budget(project_budget)
         justnow = datetime.now(timezone.utc)
         self.__time_stamp = datetime.timestamp(justnow)
@@ -139,3 +139,22 @@ class EnterpriseProject:
         if not is_match:
             raise EnterpriseManagementException("Invalid department")
         return department
+
+    def validate_starting_date(self, target_date):
+        """validates the  date format  using regex"""
+        date_pattern = re.compile(r"^(([0-2]\d|3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
+        is_match = date_pattern.fullmatch(target_date)
+        if not is_match:
+            raise EnterpriseManagementException("Invalid date format")
+
+        try:
+            my_date = datetime.strptime(target_date, "%d/%m/%Y").date()
+        except ValueError as ex:
+            raise EnterpriseManagementException("Invalid date format") from ex
+
+        if my_date < datetime.now(timezone.utc).date():
+            raise EnterpriseManagementException("Project's date must be today or later.")
+
+        if my_date.year < 2025 or my_date.year > 2050:
+            raise EnterpriseManagementException("Invalid date format")
+        return target_date
