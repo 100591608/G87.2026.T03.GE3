@@ -91,7 +91,6 @@ class EnterpriseManager:
                          budget: str):
         """registers a new project"""
         self.validate_cif(company_cif)
-        self.validate_description(project_description)
         self.validate_department(department)
         self.validate_starting_date(date)
         self.validate_budget(budget)
@@ -134,12 +133,6 @@ class EnterpriseManager:
         is_match = department_pattern.fullmatch(department)
         if not is_match:
             raise EnterpriseManagementException("Invalid department")
-
-    def validate_description(self, project_description: str):
-        description_pattern = re.compile(r"^.{10,30}$")
-        is_match = description_pattern.fullmatch(project_description)
-        if not is_match:
-            raise EnterpriseManagementException("Invalid description format")
 
     def write_json_project(self, project_list):
         try:
