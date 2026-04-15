@@ -85,3 +85,12 @@ class ProjectDocument():
         except json.JSONDecodeError as ex:
             raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
         return stored_query_summaries
+
+    @staticmethod
+    def write_json_num_docs(stored_query_summaries):
+        """Writes the num documents json store"""
+        try:
+            with open(TEST_NUMDOCS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
+                json.dump(stored_query_summaries, file, indent=2)
+        except FileNotFoundError as ex:
+            raise EnterpriseManagementException("Wrong file  or file path") from ex
