@@ -172,3 +172,14 @@ class EnterpriseProject:
         except json.JSONDecodeError as ex:
             raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
         return project_list
+
+    @staticmethod
+    def write_json_project(project_list):
+        """Writes the projects json store"""
+        try:
+            with open(PROJECTS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
+                json.dump(project_list, file, indent=2)
+        except FileNotFoundError as ex:
+            raise EnterpriseManagementException("Wrong file  or file path") from ex
+        except json.JSONDecodeError as ex:
+            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
