@@ -1,8 +1,8 @@
 """Attributes generic class"""
 import re
-from uc3m_consulting import EnterpriseManagementException
+from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 
-class Attributes():
+class Attributes:
     """Attributes generic class"""
     def __init__(self):
         self._attr_value = ""
