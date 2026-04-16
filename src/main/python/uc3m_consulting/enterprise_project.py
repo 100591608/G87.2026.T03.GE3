@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from uc3m_consulting.attributes.acronym import Acronym
 from uc3m_consulting.attributes.department import Department
 from uc3m_consulting.attributes.description import Description
+from uc3m_consulting.attributes.budget import Budget
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 from uc3m_consulting.enterprise_manager_config import PROJECTS_STORE_FILE
 
@@ -25,7 +26,7 @@ class EnterpriseProject:
         self.__project_achronym = Acronym(project_acronym).value
         self.__department = Department(department).value
         self.__starting_date = self.validate_starting_date(starting_date)
-        self.__project_budget = self.validate_budget(project_budget)
+        self.__project_budget = Budget(project_budget).value
         justnow = datetime.now(timezone.utc)
         self.__time_stamp = datetime.timestamp(justnow)
 
@@ -103,23 +104,6 @@ class EnterpriseProject:
     def project_id(self):
         """Returns the md5 signature (project id)"""
         return hashlib.md5(str(self).encode()).hexdigest()
-
-    def validate_budget(self, budget: str):
-        """Validates the project budget"""
-        try:
-            budget_float = float(budget)
-        except ValueError as exc:
-            raise EnterpriseManagementException("Invalid budget amount") from exc
-
-        budget_string = str(budget_float)
-        if '.' in budget_string:
-            decimales = len(budget_string.split('.')[1])
-            if decimales > 2:
-                raise EnterpriseManagementException("Invalid budget amount")
-
-        if budget_float < 50000 or budget_float > 1000000:
-            raise EnterpriseManagementException("Invalid budget amount")
-        return budget
 
     def validate_starting_date(self, target_date):
         """validates the  date format  using regex"""
