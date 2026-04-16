@@ -79,80 +79,16 @@ class EnterpriseManager:
                                         starting_date=date,
                                         project_budget=budget)
 
+        # Load Item
         project_list = EnterpriseProject.read_json_project()
 
+        # Find Item
         for project_item in project_list:
             if project_item == new_project.to_json():
                 raise EnterpriseManagementException("Duplicated project in projects list")
-
+        # Add item
         project_list.append(new_project.to_json())
 
+        # save item
         EnterpriseProject.write_json_project(project_list)
         return new_project.project_id
-
-    def find_docs(self, date_str):
-        """
-        Generates a JSON report counting valid documents for a specific date.
-
-        Checks cryptographic hashes and timestamps to ensure historical data integrity.
-        Saves the output to 'resultado.json'.
-
-        Args:
-            date_str (str): date to query.
-
-        Returns:
-            number of documents found if report is successfully generated and saved.
-
-        Raises:
-            EnterpriseManagementException: On invalid date, file IO errors,
-                missing data, or cryptographic integrity failure.
-        """
-        date_pattern = re.compile(r"^(([0-2]\d|3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
-        is_match = date_pattern.fullmatch(date_str)
-        if not is_match:
-            raise EnterpriseManagementException("Invalid date format")
-
-        try:
-            my_date = datetime.strptime(date_str, "%d/%m/%Y").date()
-        except ValueError as ex:
-            raise EnterpriseManagementException("Invalid date format") from ex
-
-
-        # open documents
-        document_list = ProjectDocument.read_json_documents()
-
-
-        valid_count = 0
-
-        # loop to find
-        for document_item in document_list:
-            time_val = document_item["register_date"]
-
-            # string conversion for easy match
-            doc_date_str = datetime.fromtimestamp(time_val).strftime("%d/%m/%Y")
-
-            if doc_date_str == date_str:
-                doc_registration_time = datetime.fromtimestamp(time_val, tz=timezone.utc)
-                with freeze_time(doc_registration_time):
-                    # check the project id (thanks to freezetime)
-                    # if project_id are different then the data has been
-                    #manipulated
-                    project_document = ProjectDocument(document_item["project_id"], document_item["file_name"])
-                    if project_document.document_signature == document_item["document_signature"]:
-                        valid_count = valid_count + 1
-                    else:
-                        raise EnterpriseManagementException("Inconsistent document signature")
-
-        if valid_count == 0:
-            raise EnterpriseManagementException("No documents found")
-        # prepare json text
-        now_str = datetime.now(timezone.utc).timestamp()
-        query_summary_data = {"Querydate":  date_str,
-             "ReportDate": now_str,
-             "Numfiles": valid_count
-             }
-
-        stored_query_summaries = ProjectDocument.read_json_num_docs()
-        stored_query_summaries.append(query_summary_data)
-        ProjectDocument.write_json_num_docs(stored_query_summaries)
-        return valid_count
