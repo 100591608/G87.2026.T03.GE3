@@ -6,6 +6,7 @@ from typing import Any
 from datetime import datetime, timezone
 from uc3m_consulting.attributes.acronym import Acronym
 from uc3m_consulting.attributes.department import Department
+from uc3m_consulting.attributes.description import Description
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 from uc3m_consulting.enterprise_manager_config import PROJECTS_STORE_FILE
 
@@ -20,7 +21,7 @@ class EnterpriseProject:
                  starting_date: str,
                  project_budget: float):
         self.__company_cif = company_cif
-        self.__project_description = self.validate_description(project_description)
+        self.__project_description = Description(project_description).value
         self.__project_achronym = Acronym(project_acronym).value
         self.__department = Department(department).value
         self.__starting_date = self.validate_starting_date(starting_date)
@@ -102,14 +103,6 @@ class EnterpriseProject:
     def project_id(self):
         """Returns the md5 signature (project id)"""
         return hashlib.md5(str(self).encode()).hexdigest()
-
-    def validate_description(self, project_description: str):
-        """Validates the project description"""
-        description_pattern = re.compile(r"^.{10,30}$")
-        is_match = description_pattern.fullmatch(project_description)
-        if not is_match:
-            raise EnterpriseManagementException("Invalid description format")
-        return project_description
 
     def validate_budget(self, budget: str):
         """Validates the project budget"""
