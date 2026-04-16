@@ -72,8 +72,6 @@ class EnterpriseManager:
                          date: str,
                          budget: str):
         """registers a new project"""
-        self.validate_cif(company_cif)
-
         new_project = EnterpriseProject(company_cif=company_cif,
                                         project_acronym=project_acronym,
                                         project_description=project_description,

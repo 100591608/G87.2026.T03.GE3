@@ -9,6 +9,7 @@ from uc3m_consulting.attributes.department import Department
 from uc3m_consulting.attributes.description import Description
 from uc3m_consulting.attributes.budget import Budget
 from uc3m_consulting.attributes.starting_date import StartingDate
+from uc3m_consulting.attributes.cif import Cif
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 from uc3m_consulting.enterprise_manager_config import PROJECTS_STORE_FILE
 
@@ -22,7 +23,7 @@ class EnterpriseProject:
                  department: str,
                  starting_date: str,
                  project_budget: float):
-        self.__company_cif = company_cif
+        self.__company_cif = Cif(company_cif).value
         self.__project_description = Description(project_description).value
         self.__project_achronym = Acronym(project_acronym).value
         self.__department = Department(department).value
