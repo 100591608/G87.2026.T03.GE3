@@ -5,6 +5,7 @@ import json
 from typing import Any
 from datetime import datetime, timezone
 from uc3m_consulting.attributes.acronym import Acronym
+from uc3m_consulting.attributes.department import Department
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 from uc3m_consulting.enterprise_manager_config import PROJECTS_STORE_FILE
 
@@ -21,7 +22,7 @@ class EnterpriseProject:
         self.__company_cif = company_cif
         self.__project_description = self.validate_description(project_description)
         self.__project_achronym = Acronym(project_acronym).value
-        self.__department = self.validate_department(department)
+        self.__department = Department(department).value
         self.__starting_date = self.validate_starting_date(starting_date)
         self.__project_budget = self.validate_budget(project_budget)
         justnow = datetime.now(timezone.utc)
@@ -126,14 +127,6 @@ class EnterpriseProject:
         if budget_float < 50000 or budget_float > 1000000:
             raise EnterpriseManagementException("Invalid budget amount")
         return budget
-
-    def validate_department(self, department: str):
-        """Validates the project department"""
-        department_pattern = re.compile(r"(HR|FINANCE|LEGAL|LOGISTICS)")
-        is_match = department_pattern.fullmatch(department)
-        if not is_match:
-            raise EnterpriseManagementException("Invalid department")
-        return department
 
     def validate_starting_date(self, target_date):
         """validates the  date format  using regex"""
