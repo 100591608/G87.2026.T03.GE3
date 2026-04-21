@@ -9,6 +9,7 @@ from uc3m_consulting.enterprise_management_exception import EnterpriseManagement
 from uc3m_consulting.enterprise_manager_config import (TEST_DOCUMENTS_STORE_FILE,
                                                        TEST_NUMDOCS_STORE_FILE)
 from uc3m_consulting.stores.documents_json_store import DocumentsJsonStore
+from uc3m_consulting.stores.num_docs_json_store import NumDocsJsonStore
 
 class ProjectDocument():
     """Class representing the information required for shipping of an order"""
@@ -161,7 +162,6 @@ class ProjectDocument():
              "Numfiles": valid_count
              }
 
-        stored_query_summaries = cls.read_json_num_docs()
-        stored_query_summaries.append(query_summary_data)
-        cls.write_json_num_docs(stored_query_summaries)
+        num_docs_store = NumDocsJsonStore()
+        num_docs_store.add_item_to_store(query_summary_data)
         return valid_count
