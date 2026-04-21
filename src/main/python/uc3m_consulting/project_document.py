@@ -8,6 +8,7 @@ from freezegun import freeze_time
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 from uc3m_consulting.enterprise_manager_config import (TEST_DOCUMENTS_STORE_FILE,
                                                        TEST_NUMDOCS_STORE_FILE)
+from uc3m_consulting.stores.documents_json_store import DocumentsJsonStore
 
 class ProjectDocument():
     """Class representing the information required for shipping of an order"""
@@ -127,7 +128,8 @@ class ProjectDocument():
 
 
         # open documents
-        document_list = cls.read_json_documents()
+        document_store = DocumentsJsonStore()
+        document_list = document_store.load_store()
 
         valid_count = 0
 
