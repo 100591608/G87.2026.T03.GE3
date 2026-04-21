@@ -5,10 +5,10 @@ from uc3m_consulting.enterprise_management_exception import EnterpriseManagement
 class JsonStoreMaster:
     """Superclass for managing storage in JSON files"""
 
-    def __init__(self, file_store, id_field=""):
+    def __init__(self, file_store):
         self._data_list = []
         self._file_name = file_store
-        self._id_field = id_field
+        self.load_store()
 
     def load_store(self):
         """Loads the JSON file"""
