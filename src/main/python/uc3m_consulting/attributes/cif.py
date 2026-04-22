@@ -11,16 +11,16 @@ class Cif(Attributes):
         self._validation_pattern = r"^[ABCDEFGHJKNPQRSUVW]\d{7}[0-9A-J]$"
         self._attr_value = self._validate(attr_value)
 
-    def _validate(self, attr_value: str) -> str:
+    def _validate(self, value: str) -> str:
         """Validate the CIF format and control character"""
-        if not isinstance(attr_value, str):
+        if not isinstance(value, str):
             raise EnterpriseManagementException("CIF code must be a string")
 
-        super()._validate(attr_value)
+        super()._validate(value)
 
-        first_letter = attr_value[0]
-        number_part = attr_value[1:8]
-        control_char = attr_value[8]
+        first_letter = value[0]
+        number_part = value[1:8]
+        control_char = value[8]
 
         sum_odd_digits = 0
         sum_even_digits = 0
@@ -52,4 +52,4 @@ class Cif(Attributes):
         else:
             raise EnterpriseManagementException("CIF type not supported")
 
-        return attr_value
+        return value

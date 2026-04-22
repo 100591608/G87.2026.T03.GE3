@@ -9,7 +9,6 @@ from datetime import datetime,timezone
 from freezegun import freeze_time
 from uc3m_consulting import (TEST_NUMDOCS_STORE_FILE,
                         ProjectDocument,
-                        EnterpriseManager,
                         EnterpriseManagementException)
 
 class TestDocumentsReporTest(TestCase):

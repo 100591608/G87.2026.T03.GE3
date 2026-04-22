@@ -1,8 +1,6 @@
 """MODULE: enterprise_project. Contains the EnterpriseProject class"""
-import re
 import hashlib
 import json
-from typing import Any
 from datetime import datetime, timezone
 from uc3m_consulting.attributes.acronym import Acronym
 from uc3m_consulting.attributes.department import Department
@@ -10,8 +8,6 @@ from uc3m_consulting.attributes.description import Description
 from uc3m_consulting.attributes.budget import Budget
 from uc3m_consulting.attributes.starting_date import StartingDate
 from uc3m_consulting.attributes.cif import Cif
-from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
-from uc3m_consulting.enterprise_manager_config import PROJECTS_STORE_FILE
 
 class EnterpriseProject:
     """Class representing a project"""
@@ -106,26 +102,3 @@ class EnterpriseProject:
     def project_id(self):
         """Returns the md5 signature (project id)"""
         return hashlib.md5(str(self).encode()).hexdigest()
-
-    @staticmethod
-    def read_json_project() -> Any:
-        """Reads the projects json store"""
-        try:
-            with open(PROJECTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                project_list = json.load(file)
-        except FileNotFoundError:
-            project_list = []
-        except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
-        return project_list
-
-    @staticmethod
-    def write_json_project(project_list):
-        """Writes the projects json store"""
-        try:
-            with open(PROJECTS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
-                json.dump(project_list, file, indent=2)
-        except FileNotFoundError as ex:
-            raise EnterpriseManagementException("Wrong file  or file path") from ex
-        except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex

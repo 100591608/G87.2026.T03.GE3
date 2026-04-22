@@ -1,13 +1,9 @@
 """Contains the class OrderShipping"""
 import re
-import json
-from typing import Any
 from datetime import datetime, timezone
 import hashlib
 from freezegun import freeze_time
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
-from uc3m_consulting.enterprise_manager_config import (TEST_DOCUMENTS_STORE_FILE,
-                                                       TEST_NUMDOCS_STORE_FILE)
 from uc3m_consulting.stores.documents_json_store import DocumentsJsonStore
 from uc3m_consulting.stores.num_docs_json_store import NumDocsJsonStore
 
@@ -62,43 +58,12 @@ class ProjectDocument():
     def register_date(self, value):
         self.__register_date = value
 
-
     @property
     def document_signature(self):
         """Returns the sha256 signature of the date"""
         return hashlib.sha256(self.__signature_string().encode()).hexdigest()
 
-    @staticmethod
-    def read_json_documents() -> Any:
-        """Reads the documents json store"""
-        try:
-            with open(TEST_DOCUMENTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                document_list = json.load(file)
-        except FileNotFoundError as ex:
-            raise EnterpriseManagementException("Wrong file  or file path") from ex
-        return document_list
-
-    @staticmethod
-    def read_json_num_docs() -> Any:
-        """Reads the num documents json store"""
-        try:
-            with open(TEST_NUMDOCS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                stored_query_summaries = json.load(file)
-        except FileNotFoundError:
-            stored_query_summaries = []
-        except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
-        return stored_query_summaries
-
-    @staticmethod
-    def write_json_num_docs(stored_query_summaries):
-        """Writes the num documents json store"""
-        try:
-            with open(TEST_NUMDOCS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
-                json.dump(stored_query_summaries, file, indent=2)
-        except FileNotFoundError as ex:
-            raise EnterpriseManagementException("Wrong file  or file path") from ex
-
+    #pylint: disable=too-many-locals
     @classmethod
     def find_docs(cls, date_str):
         """
@@ -117,13 +82,13 @@ class ProjectDocument():
             EnterpriseManagementException: On invalid date, file IO errors,
                 missing data, or cryptographic integrity failure.
         """
-        date_pattern = re.compile(r"^(([0-2]\d|3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
+        date_pattern = re.compile(r"^(([0-2]\d|3[0-1])/(0\d|1[0-2])/\d\d\d\d)$")
         is_match = date_pattern.fullmatch(date_str)
         if not is_match:
             raise EnterpriseManagementException("Invalid date format")
 
         try:
-            my_date = datetime.strptime(date_str, "%d/%m/%Y").date()
+            datetime.strptime(date_str, "%d/%m/%Y").date()
         except ValueError as ex:
             raise EnterpriseManagementException("Invalid date format") from ex
 
