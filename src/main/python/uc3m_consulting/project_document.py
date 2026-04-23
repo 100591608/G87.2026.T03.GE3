@@ -1,11 +1,11 @@
-"""Contains the class OrderShipping"""
+"""Contains the class Project Document"""
 from datetime import datetime, timezone
 import hashlib
 from freezegun import freeze_time
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 
 class ProjectDocument():
-    """Class representing the information required for shipping of an order"""
+    """Class representing Project Document"""
 
     def __init__(self, project_id: str, file_name):
         self.__alg = "SHA-256"
@@ -32,7 +32,7 @@ class ProjectDocument():
 
     @property
     def project_id(self):
-        """Property that represents the product_id of the patient"""
+        """Property that represents the project_id"""
         return self.__project_id
 
     @project_id.setter
@@ -41,7 +41,7 @@ class ProjectDocument():
 
     @property
     def file_name(self):
-        """Property that represents the order_id"""
+        """Property that represents the file_name"""
         return self.__file_name
     @file_name.setter
     def file_name(self, value):
@@ -49,7 +49,7 @@ class ProjectDocument():
 
     @property
     def register_date(self):
-        """Property that represents the phone number of the client"""
+        """Property that represents the register_date of the document"""
         return self.__register_date
     @register_date.setter
     def register_date(self, value):
@@ -65,9 +65,6 @@ class ProjectDocument():
         """Gets documents stored in a json file"""
         doc_registration_time = datetime.fromtimestamp(document_item["register_date"], tz=timezone.utc)
         with freeze_time(doc_registration_time):
-            # check the project id (thanks to freezetime)
-            # if project_id are different then the data has been
-            # manipulated
             project_document = cls(document_item["project_id"], document_item["file_name"])
             if project_document.document_signature != document_item["document_signature"]:
                 raise EnterpriseManagementException("Inconsistent document signature")

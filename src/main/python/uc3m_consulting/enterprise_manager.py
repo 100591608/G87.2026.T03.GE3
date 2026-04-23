@@ -1,4 +1,4 @@
-"""Module """
+"""Module for EnterpriseManager class"""
 from datetime import datetime
 from uc3m_consulting.enterprise_project import EnterpriseProject
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
@@ -56,17 +56,14 @@ class EnterpriseManager:
             """
             NumDocsDocument.validate_query_date(date_str)
 
-            # open documents
             document_store = DocumentsJsonStore()
             document_list = document_store.load_store()
 
             valid_count = 0
 
-            # loop to find
             for document_item in document_list:
                 time_val = document_item["register_date"]
 
-                # string conversion for easy match
                 doc_date_str = datetime.fromtimestamp(time_val).strftime("%d/%m/%Y")
 
                 if doc_date_str == date_str:
@@ -75,7 +72,7 @@ class EnterpriseManager:
 
             if valid_count == 0:
                 raise EnterpriseManagementException("No documents found")
-            # prepare json text
+
             my_num_docs = NumDocsDocument(date_str, valid_count)
 
             num_docs_store = NumDocsJsonStore()
