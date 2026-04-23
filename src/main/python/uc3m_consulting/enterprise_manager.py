@@ -86,8 +86,8 @@ class EnterpriseManager:
 
     def __new__(cls):
         if not EnterpriseManager.instance:
-            cls.instance = cls.__EnterpriseManager()
-        return cls.instance
+            EnterpriseManager.instance = EnterpriseManager.__EnterpriseManager()
+        return EnterpriseManager.instance
 
     def __getattr__(self, name):
         return getattr(self.instance, name)
