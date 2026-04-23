@@ -10,71 +10,87 @@ from uc3m_consulting.stores.num_docs_json_store import NumDocsJsonStore
 
 class EnterpriseManager:
     """Class for providing the methods for managing the orders"""
-    def __init__(self):
-        pass
 
-    #pylint: disable=too-many-arguments, too-many-positional-arguments
-    def register_project(self,
-                         company_cif: str,
-                         project_acronym: str,
-                         project_description: str,
-                         department: str,
-                         date: str,
-                         budget: str):
-        """registers a new project"""
-        new_project = EnterpriseProject(company_cif=company_cif,
-                                        project_acronym=project_acronym,
-                                        project_description=project_description,
-                                        department=department,
-                                        starting_date=date,
-                                        project_budget=budget)
+    class __EnterpriseManager:
+        """Class for providing the methods for managing the orders"""
+        def __init__(self):
+            pass
 
-        project_store = ProjectsJsonStore()
-        project_store.add_item_to_store(new_project)
-        return new_project.project_id
+        #pylint: disable=too-many-arguments, too-many-positional-arguments
+        def register_project(self,
+                             company_cif: str,
+                             project_acronym: str,
+                             project_description: str,
+                             department: str,
+                             date: str,
+                             budget: str):
+            """registers a new project"""
+            new_project = EnterpriseProject(company_cif=company_cif,
+                                            project_acronym=project_acronym,
+                                            project_description=project_description,
+                                            department=department,
+                                            starting_date=date,
+                                            project_budget=budget)
 
-    #pylint: disable=too-many-locals
-    def find_docs(self, date_str):
-        """
-        Generates a JSON report counting valid documents for a specific date.
+            project_store = ProjectsJsonStore()
+            project_store.add_item_to_store(new_project)
+            return new_project.project_id
 
-        Checks cryptographic hashes and timestamps to ensure historical data integrity.
-        Saves the output to 'resultado.json'.
+        #pylint: disable=too-many-locals
+        def find_docs(self, date_str):
+            """
+            Generates a JSON report counting valid documents for a specific date.
 
-        Args:
-            date_str (str): date to query.
+            Checks cryptographic hashes and timestamps to ensure historical data integrity.
+            Saves the output to 'resultado.json'.
 
-        Returns:
-            number of documents found if report is successfully generated and saved.
+            Args:
+                date_str (str): date to query.
 
-        Raises:
-            EnterpriseManagementException: On invalid date, file IO errors,
-                missing data, or cryptographic integrity failure.
-        """
-        NumDocsDocument.validate_query_date(date_str)
+            Returns:
+                number of documents found if report is successfully generated and saved.
 
-        # open documents
-        document_store = DocumentsJsonStore()
-        document_list = document_store.load_store()
+            Raises:
+                EnterpriseManagementException: On invalid date, file IO errors,
+                    missing data, or cryptographic integrity failure.
+            """
+            NumDocsDocument.validate_query_date(date_str)
 
-        valid_count = 0
+            # open documents
+            document_store = DocumentsJsonStore()
+            document_list = document_store.load_store()
 
-        # loop to find
-        for document_item in document_list:
-            time_val = document_item["register_date"]
+            valid_count = 0
 
-            # string conversion for easy match
-            doc_date_str = datetime.fromtimestamp(time_val).strftime("%d/%m/%Y")
+            # loop to find
+            for document_item in document_list:
+                time_val = document_item["register_date"]
 
-            if doc_date_str == date_str:
-                ProjectDocument.get_docs_from_file(document_item)
-                valid_count = valid_count + 1
+                # string conversion for easy match
+                doc_date_str = datetime.fromtimestamp(time_val).strftime("%d/%m/%Y")
 
-        if valid_count == 0:
-            raise EnterpriseManagementException("No documents found")
-        # prepare json text
-        my_num_docs = NumDocsDocument(date_str, valid_count)
+                if doc_date_str == date_str:
+                    ProjectDocument.get_docs_from_file(document_item)
+                    valid_count = valid_count + 1
 
-        num_docs_store = NumDocsJsonStore()
-        num_docs_store.add_item_to_store(my_num_docs)
-        return valid_count
+            if valid_count == 0:
+                raise EnterpriseManagementException("No documents found")
+            # prepare json text
+            my_num_docs = NumDocsDocument(date_str, valid_count)
+
+            num_docs_store = NumDocsJsonStore()
+            num_docs_store.add_item_to_store(my_num_docs)
+            return valid_count
+
+    instance = None
+
+    def __new__(cls):
+        if not EnterpriseManager.instance:
+            cls.instance = cls.__EnterpriseManager()
+        return cls.instance
+
+    def __getattr__(self, name):
+        return getattr(self.instance, name)
+
+    def __setattr__(self, name, value):
+        return setattr(self.instance, name, value)
