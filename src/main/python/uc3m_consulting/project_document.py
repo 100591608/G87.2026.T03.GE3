@@ -1,11 +1,11 @@
 """Contains the class OrderShipping"""
-import re
 from datetime import datetime, timezone
 import hashlib
 from freezegun import freeze_time
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 from uc3m_consulting.stores.documents_json_store import DocumentsJsonStore
 from uc3m_consulting.stores.num_docs_json_store import NumDocsJsonStore
+from uc3m_consulting.num_docs_document import NumDocsDocument
 
 class ProjectDocument():
     """Class representing the information required for shipping of an order"""
@@ -63,6 +63,19 @@ class ProjectDocument():
         """Returns the sha256 signature of the date"""
         return hashlib.sha256(self.__signature_string().encode()).hexdigest()
 
+    @classmethod
+    def get_docs_from_file(cls, document_item):
+        """Gets documents stored in a json file"""
+        doc_registration_time = datetime.fromtimestamp(document_item["register_date"], tz=timezone.utc)
+        with freeze_time(doc_registration_time):
+            # check the project id (thanks to freezetime)
+            # if project_id are different then the data has been
+            # manipulated
+            project_document = cls(document_item["project_id"], document_item["file_name"])
+            if project_document.document_signature != document_item["document_signature"]:
+                raise EnterpriseManagementException("Inconsistent document signature")
+        return project_document
+
     #pylint: disable=too-many-locals
     @classmethod
     def find_docs(cls, date_str):
@@ -82,16 +95,7 @@ class ProjectDocument():
             EnterpriseManagementException: On invalid date, file IO errors,
                 missing data, or cryptographic integrity failure.
         """
-        date_pattern = re.compile(r"^(([0-2]\d|3[0-1])/(0\d|1[0-2])/\d\d\d\d)$")
-        is_match = date_pattern.fullmatch(date_str)
-        if not is_match:
-            raise EnterpriseManagementException("Invalid date format")
-
-        try:
-            datetime.strptime(date_str, "%d/%m/%Y").date()
-        except ValueError as ex:
-            raise EnterpriseManagementException("Invalid date format") from ex
-
+        NumDocsDocument.validate_query_date(date_str)
 
         # open documents
         document_store = DocumentsJsonStore()
@@ -107,26 +111,14 @@ class ProjectDocument():
             doc_date_str = datetime.fromtimestamp(time_val).strftime("%d/%m/%Y")
 
             if doc_date_str == date_str:
-                doc_registration_time = datetime.fromtimestamp(time_val, tz=timezone.utc)
-                with freeze_time(doc_registration_time):
-                    # check the project id (thanks to freezetime)
-                    # if project_id are different then the data has been
-                    #manipulated
-                    project_document = cls(document_item["project_id"], document_item["file_name"])
-                    if project_document.document_signature == document_item["document_signature"]:
-                        valid_count = valid_count + 1
-                    else:
-                        raise EnterpriseManagementException("Inconsistent document signature")
+                cls.get_docs_from_file(document_item)
+                valid_count = valid_count + 1
 
         if valid_count == 0:
             raise EnterpriseManagementException("No documents found")
         # prepare json text
-        now_str = datetime.now(timezone.utc).timestamp()
-        query_summary_data = {"Querydate":  date_str,
-             "ReportDate": now_str,
-             "Numfiles": valid_count
-             }
+        my_num_docs = NumDocsDocument(date_str, valid_count)
 
         num_docs_store = NumDocsJsonStore()
-        num_docs_store.add_item_to_store(query_summary_data)
+        num_docs_store.add_item_to_store(my_num_docs)
         return valid_count
