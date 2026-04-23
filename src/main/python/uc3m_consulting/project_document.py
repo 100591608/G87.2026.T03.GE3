@@ -3,9 +3,6 @@ from datetime import datetime, timezone
 import hashlib
 from freezegun import freeze_time
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
-from uc3m_consulting.stores.documents_json_store import DocumentsJsonStore
-from uc3m_consulting.stores.num_docs_json_store import NumDocsJsonStore
-from uc3m_consulting.num_docs_document import NumDocsDocument
 
 class ProjectDocument():
     """Class representing the information required for shipping of an order"""
@@ -75,50 +72,3 @@ class ProjectDocument():
             if project_document.document_signature != document_item["document_signature"]:
                 raise EnterpriseManagementException("Inconsistent document signature")
         return project_document
-
-    #pylint: disable=too-many-locals
-    @classmethod
-    def find_docs(cls, date_str):
-        """
-        Generates a JSON report counting valid documents for a specific date.
-
-        Checks cryptographic hashes and timestamps to ensure historical data integrity.
-        Saves the output to 'resultado.json'.
-
-        Args:
-            date_str (str): date to query.
-
-        Returns:
-            number of documents found if report is successfully generated and saved.
-
-        Raises:
-            EnterpriseManagementException: On invalid date, file IO errors,
-                missing data, or cryptographic integrity failure.
-        """
-        NumDocsDocument.validate_query_date(date_str)
-
-        # open documents
-        document_store = DocumentsJsonStore()
-        document_list = document_store.load_store()
-
-        valid_count = 0
-
-        # loop to find
-        for document_item in document_list:
-            time_val = document_item["register_date"]
-
-            # string conversion for easy match
-            doc_date_str = datetime.fromtimestamp(time_val).strftime("%d/%m/%Y")
-
-            if doc_date_str == date_str:
-                cls.get_docs_from_file(document_item)
-                valid_count = valid_count + 1
-
-        if valid_count == 0:
-            raise EnterpriseManagementException("No documents found")
-        # prepare json text
-        my_num_docs = NumDocsDocument(date_str, valid_count)
-
-        num_docs_store = NumDocsJsonStore()
-        num_docs_store.add_item_to_store(my_num_docs)
-        return valid_count

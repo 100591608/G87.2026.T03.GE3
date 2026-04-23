@@ -1,58 +1,17 @@
 """Module """
-import re
+from datetime import datetime
 from uc3m_consulting.enterprise_project import EnterpriseProject
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 from uc3m_consulting.stores.projects_json_store import ProjectsJsonStore
+from uc3m_consulting.project_document import ProjectDocument
+from uc3m_consulting.num_docs_document import NumDocsDocument
+from uc3m_consulting.stores.documents_json_store import DocumentsJsonStore
+from uc3m_consulting.stores.num_docs_json_store import NumDocsJsonStore
 
 class EnterpriseManager:
     """Class for providing the methods for managing the orders"""
     def __init__(self):
         pass
-
-    @staticmethod
-    def validate_cif(cif_number: str):
-        """validates a cif number """
-        if not isinstance(cif_number, str):
-            raise EnterpriseManagementException("CIF code must be a string")
-        cif_pattern = re.compile(r"^[ABCDEFGHJKNPQRSUVW]\d{7}[0-9A-J]$")
-        if not cif_pattern.fullmatch(cif_number):
-            raise EnterpriseManagementException("Invalid CIF format")
-
-        first_letter = cif_number[0]
-        number_part = cif_number[1:8]
-        control_char = cif_number[8]
-
-        sum_odd_digits = 0
-        sum_even_digits = 0
-
-        for i in range(len(number_part)):
-            if i % 2 == 0:
-                doubled_digit = int(number_part[i]) * 2
-                if doubled_digit > 9:
-                    sum_odd_digits = sum_odd_digits + (doubled_digit // 10) + (doubled_digit % 10)
-                else:
-                    sum_odd_digits = sum_odd_digits + doubled_digit
-            else:
-                sum_even_digits = sum_even_digits + int(number_part[i])
-
-        total = sum_odd_digits + sum_even_digits
-        last_digit_of_sum = total % 10
-        expected_control_number = 10 - last_digit_of_sum
-
-        if expected_control_number == 10:
-            expected_control_number = 0
-
-        control_letter_mapping = "JABCDEFGHI"
-
-        if first_letter in ('A', 'B', 'E', 'H'):
-            if str(expected_control_number) != control_char:
-                raise EnterpriseManagementException("Invalid CIF character control number")
-        elif first_letter in ('P', 'Q', 'S', 'K'):
-            if control_letter_mapping[expected_control_number] != control_char:
-                raise EnterpriseManagementException("Invalid CIF character control letter")
-        else:
-            raise EnterpriseManagementException("CIF type not supported")
-        return True
 
     #pylint: disable=too-many-arguments, too-many-positional-arguments
     def register_project(self,
@@ -73,3 +32,49 @@ class EnterpriseManager:
         project_store = ProjectsJsonStore()
         project_store.add_item_to_store(new_project)
         return new_project.project_id
+
+    #pylint: disable=too-many-locals
+    def find_docs(self, date_str):
+        """
+        Generates a JSON report counting valid documents for a specific date.
+
+        Checks cryptographic hashes and timestamps to ensure historical data integrity.
+        Saves the output to 'resultado.json'.
+
+        Args:
+            date_str (str): date to query.
+
+        Returns:
+            number of documents found if report is successfully generated and saved.
+
+        Raises:
+            EnterpriseManagementException: On invalid date, file IO errors,
+                missing data, or cryptographic integrity failure.
+        """
+        NumDocsDocument.validate_query_date(date_str)
+
+        # open documents
+        document_store = DocumentsJsonStore()
+        document_list = document_store.load_store()
+
+        valid_count = 0
+
+        # loop to find
+        for document_item in document_list:
+            time_val = document_item["register_date"]
+
+            # string conversion for easy match
+            doc_date_str = datetime.fromtimestamp(time_val).strftime("%d/%m/%Y")
+
+            if doc_date_str == date_str:
+                ProjectDocument.get_docs_from_file(document_item)
+                valid_count = valid_count + 1
+
+        if valid_count == 0:
+            raise EnterpriseManagementException("No documents found")
+        # prepare json text
+        my_num_docs = NumDocsDocument(date_str, valid_count)
+
+        num_docs_store = NumDocsJsonStore()
+        num_docs_store.add_item_to_store(my_num_docs)
+        return valid_count
